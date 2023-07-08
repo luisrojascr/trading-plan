@@ -13,7 +13,7 @@ type Transaction = {
   efectividad: string
 }
 
-export const columns: ColumnDef<Transaction>[] = [
+export const econPerformanceByMarketColumns: ColumnDef<Transaction>[] = [
   {
     accessorKey: "symbol",
     header: () => <div className="text-center">Indice</div>,
@@ -35,7 +35,7 @@ export const columns: ColumnDef<Transaction>[] = [
     header: () => <div className="text-center">Perdidas</div>,
     cell: ({ row }) => {
       return (
-        <span className="block text-center">{row.getValue("perdidas")}</span>
+        <span className="block text-center">-{row.getValue("perdidas")}</span>
       )
     },
   },
@@ -43,8 +43,14 @@ export const columns: ColumnDef<Transaction>[] = [
     accessorKey: "balance",
     header: () => <div className="text-center">Balance</div>,
     cell: ({ row }) => {
-      return (
-        <span className="block text-center">{row.getValue("balance")}</span>
+      const balance: number = row.getValue("balance")
+      // return (
+      //   <span className="block text-center">{row.getValue("balance")}</span>
+      // )
+      return balance < 0 ? (
+        <div className="block bg-red-500 text-center">{balance}</div>
+      ) : (
+        <div className="block bg-green-500 text-center">{balance}</div>
       )
     },
   },

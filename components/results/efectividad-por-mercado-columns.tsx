@@ -44,10 +44,10 @@ export const columnsEffectivenessMarket: ColumnDef<Transaction>[] = [
     header: () => <div className="text-center">Balance</div>,
     cell: ({ row }) => {
       const balance: number = row.getValue("balance")
-      return balance > 0 ? (
-        <div className="block bg-green-500 text-center">{balance}</div>
-      ) : (
+      return balance < 0 ? (
         <div className="block bg-red-500 text-center">{balance}</div>
+      ) : (
+        <div className="block bg-green-500 text-center">{balance}</div>
       )
     },
   },

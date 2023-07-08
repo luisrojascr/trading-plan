@@ -29,7 +29,7 @@ export const columns: ColumnDef<Transaction>[] = [
             variant="ghost"
             onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
           >
-            Cierre de operación
+            Hora de Cierre
             <ArrowUpDown className="ml-2 h-4 w-4" />
           </Button>
         </div>
@@ -105,7 +105,7 @@ export const columns: ColumnDef<Transaction>[] = [
         case "win":
           return (
             <span className="block text-center">
-              <Badge variant="secondary">Ganada</Badge>
+              <Badge variant="outline">Ganada</Badge>
             </span>
           )
         case "lost":

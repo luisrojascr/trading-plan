@@ -18,7 +18,7 @@ import {
 import { DataTable } from "./data-table-results"
 import { EfectDaysColumns } from "./efectividad-por-dias-columns"
 import { columnsEffectivenessMarket } from "./efectividad-por-mercado-columns"
-import { columns } from "./rendimiento-por-mercado-columns"
+import { econPerformanceByMarketColumns } from "./rendimiento-por-mercado-columns"
 
 function getDaysData(deals: any) {
   if (deals.length > 0) {
@@ -55,7 +55,7 @@ export async function Results({ symbols, deals }: any) {
   const winDeals = deals.filter((d: any) => d.status === "win")
   const loseDeals = deals.filter((d: any) => d.status === "lost")
   const profitAmount = winDeals.reduce((acc: any, d: any) => acc + d.profit, 0)
-  const efectividadMercado = symbols.map((s: any) => {
+  const effectivenessMarket = symbols.map((s: any) => {
     const wonDeals = winDeals.filter((d: any) => d.symbol === s.symbol).length
     const lostDeals = loseDeals.filter((d: any) => d.symbol === s.symbol).length
 
@@ -65,6 +65,36 @@ export async function Results({ symbols, deals }: any) {
       perdidas: lostDeals,
       balance: wonDeals - lostDeals,
       efectividad: ((wonDeals * 100) / (wonDeals + lostDeals)).toFixed(2),
+    }
+  })
+
+  const econPerformanceByMarket = symbols.map((s: any) => {
+    const wonDeals = winDeals.filter((d: any) => d.symbol === s.symbol)
+    const lostDeals = loseDeals.filter((d: any) => d.symbol === s.symbol)
+
+    const profitBySymbol = wonDeals.reduce(
+      (acc: any, d: any) => acc + d.profit,
+      0
+    )
+    const lostBySymbol = Math.abs(
+      lostDeals.reduce((acc: any, d: any) => acc + d.profit, 0)
+    )
+
+    console.log("wonDeals: ", wonDeals)
+    console.log("loseDeals: ", loseDeals)
+
+    return {
+      ganadas: numberFormat(profitBySymbol),
+      symbol: s.symbol,
+      perdidas: numberFormat(lostBySymbol),
+      balance:
+        profitBySymbol > lostBySymbol
+          ? numberFormat(profitBySymbol - lostBySymbol)
+          : numberFormat(lostBySymbol - profitBySymbol),
+      efectividad: (
+        (wonDeals.length * 100) /
+        (wonDeals.length + lostDeals.length)
+      ).toFixed(2),
     }
   })
 
@@ -120,7 +150,7 @@ export async function Results({ symbols, deals }: any) {
             <div className="p-3">
               <DataTable
                 columns={columnsEffectivenessMarket}
-                data={efectividadMercado}
+                data={effectivenessMarket}
               />
             </div>
           </CardContent>
@@ -134,7 +164,10 @@ export async function Results({ symbols, deals }: any) {
           </CardHeader>
           <CardContent>
             <div className="p-3">
-              <DataTable columns={columns} data={symbols} />
+              <DataTable
+                columns={econPerformanceByMarketColumns}
+                data={econPerformanceByMarket}
+              />
             </div>
           </CardContent>
         </div>
