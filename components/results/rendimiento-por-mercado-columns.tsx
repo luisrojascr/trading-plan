@@ -2,6 +2,8 @@
 
 import { ColumnDef } from "@tanstack/react-table"
 
+import { numberFormat } from "../helpers/number_format"
+
 // This type is used to define the shape of our data.
 // You can use a Zod schema here if you want.
 type Transaction = {
@@ -35,7 +37,7 @@ export const econPerformanceByMarketColumns: ColumnDef<Transaction>[] = [
     header: () => <div className="text-center">Perdidas</div>,
     cell: ({ row }) => {
       return (
-        <span className="block text-center">-{row.getValue("perdidas")}</span>
+        <span className="block text-center">{row.getValue("perdidas")}</span>
       )
     },
   },
@@ -44,13 +46,14 @@ export const econPerformanceByMarketColumns: ColumnDef<Transaction>[] = [
     header: () => <div className="text-center">Balance</div>,
     cell: ({ row }) => {
       const balance: number = row.getValue("balance")
-      // return (
-      //   <span className="block text-center">{row.getValue("balance")}</span>
-      // )
       return balance < 0 ? (
-        <div className="block bg-red-500 text-center">{balance}</div>
+        <div className="block bg-red-400 text-center">
+          {numberFormat(balance)}
+        </div>
       ) : (
-        <div className="block bg-green-500 text-center">{balance}</div>
+        <div className="block bg-green-500 text-center">
+          {numberFormat(balance)}
+        </div>
       )
     },
   },
@@ -59,7 +62,9 @@ export const econPerformanceByMarketColumns: ColumnDef<Transaction>[] = [
     header: () => <div className="text-center">Efectividad</div>,
     cell: ({ row }) => {
       return (
-        <span className="block text-center">{row.getValue("efectividad")}</span>
+        <span className="block text-center">
+          {row.getValue("efectividad")}%
+        </span>
       )
     },
   },

@@ -80,20 +80,20 @@ export async function Results({ symbols, deals }: any) {
       lostDeals.reduce((acc: any, d: any) => acc + d.profit, 0)
     )
 
-    console.log("wonDeals: ", wonDeals)
-    console.log("loseDeals: ", loseDeals)
-
     return {
       ganadas: numberFormat(profitBySymbol),
       symbol: s.symbol,
-      perdidas: numberFormat(lostBySymbol),
+      perdidas:
+        lostBySymbol === 0
+          ? numberFormat(lostBySymbol)
+          : numberFormat(-lostBySymbol),
       balance:
         profitBySymbol > lostBySymbol
-          ? numberFormat(profitBySymbol - lostBySymbol)
-          : numberFormat(lostBySymbol - profitBySymbol),
+          ? profitBySymbol - lostBySymbol
+          : -lostBySymbol + profitBySymbol,
       efectividad: (
-        (wonDeals.length * 100) /
-        (wonDeals.length + lostDeals.length)
+        (profitBySymbol * 100) /
+        (profitBySymbol + lostBySymbol)
       ).toFixed(2),
     }
   })
