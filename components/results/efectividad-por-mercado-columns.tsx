@@ -45,9 +45,13 @@ export const columnsEffectivenessMarket: ColumnDef<Transaction>[] = [
     cell: ({ row }) => {
       const balance: number = row.getValue("balance")
       return balance < 0 ? (
-        <div className="block bg-red-500 text-center">{balance}</div>
+        <div className="block text-center font-bold text-red-500">
+          {balance}
+        </div>
       ) : (
-        <div className="block bg-green-500 text-center">{balance}</div>
+        <div className="block text-center font-bold text-green-500">
+          {balance}
+        </div>
       )
     },
   },
@@ -55,10 +59,11 @@ export const columnsEffectivenessMarket: ColumnDef<Transaction>[] = [
     accessorKey: "efectividad",
     header: () => <div className="text-center">Efectividad</div>,
     cell: ({ row }) => {
-      return (
-        <span className="block text-center">
-          {row.getValue("efectividad")}%
-        </span>
+      const efectividad: number = row.getValue("efectividad")
+      return efectividad >= 50 ? (
+        <span className="block text-center text-green-500">{efectividad}%</span>
+      ) : (
+        <span className="block text-center text-red-500">{efectividad}%</span>
       )
     },
   },

@@ -111,6 +111,9 @@ export async function Results({ symbols, deals }: any) {
           <Table>
             <TableHeader>
               <TableRow>
+                {/* <TableHead className="text-center">
+                  Rentabilidad de la cuenta
+                </TableHead> */}
                 <TableHead className="text-center">
                   Total de Operaciones
                 </TableHead>
@@ -124,6 +127,9 @@ export async function Results({ symbols, deals }: any) {
             </TableHeader>
             <TableBody>
               <TableRow>
+                {/* <TableCell className="text-center font-medium">
+                  {deals.length}
+                </TableCell> */}
                 <TableCell className="text-center font-medium">
                   {deals.length}
                 </TableCell>
@@ -168,34 +174,6 @@ export async function Results({ symbols, deals }: any) {
                 columns={econPerformanceByMarketColumns}
                 data={econPerformanceByMarket}
               />
-            </div>
-          </CardContent>
-        </div>
-      </div>
-      <div className="mt-4 grid gap-4 md:grid-cols-2 lg:grid-cols-7">
-        <div className="col-span-4">
-          <CardHeader>
-            <CardTitle>Efectividad por días de la semana</CardTitle>
-            <CardDescription>
-              Se recomienda mantener una efectividad por encima del 50%
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="p-3">
-              <DataTable columns={EfectDaysColumns} data={daysData} />
-            </div>
-          </CardContent>
-        </div>
-        <div className="col-span-3">
-          <CardHeader>
-            <CardTitle>Rendimiento en $ para cada día de la semana</CardTitle>
-            <CardDescription>
-              Se recomienda mantener un rendimiento por encima del 50%
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="p-3">
-              <DataTable columns={EfectDaysColumns} data={daysData} />
             </div>
           </CardContent>
         </div>

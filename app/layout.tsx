@@ -4,9 +4,12 @@ import { Metadata } from "next"
 import { siteConfig } from "@/config/site"
 import { fontSans } from "@/lib/fonts"
 import { cn } from "@/lib/utils"
+import { MainNav } from "@/components/main-nav"
 import { SiteHeader } from "@/components/site-header"
 import { TailwindIndicator } from "@/components/tailwind-indicator"
+import TeamSwitcher from "@/components/team-switcher"
 import { ThemeProvider } from "@/components/theme-provider"
+import { UserNav } from "@/components/user-nav"
 
 export const metadata: Metadata = {
   title: {
@@ -43,6 +46,18 @@ export default function RootLayout({ children }: RootLayoutProps) {
           <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
             <div className="relative flex min-h-screen flex-col">
               {/* <SiteHeader /> */}
+              <div className="hidden flex-col md:flex">
+                <div className="border-b">
+                  <div className="flex h-16 items-center px-4">
+                    <TeamSwitcher />
+                    <MainNav className="mx-6" />
+                    <div className="ml-auto flex items-center space-x-4">
+                      {/* <Search /> */}
+                      <UserNav />
+                    </div>
+                  </div>
+                </div>
+              </div>
               <div className="flex-1">{children}</div>
             </div>
             <TailwindIndicator />

@@ -49,6 +49,7 @@ async function fetchDeals() {
         ...deal,
         profit2: deal.profit,
         status: deal.profit >= 0 ? "win" : "lost",
+        swap: deal.swap,
         type: deal.type === "DEAL_TYPE_BUY" ? "Sell" : "Buy",
       }))
 
@@ -59,7 +60,7 @@ async function fetchDeals() {
 }
 
 function getSymbols(deals: any) {
-  if (deals.length > 0) {
+  if (deals?.length > 0) {
     return deals
       .map((deal: any) => ({
         ...deal,
@@ -87,9 +88,23 @@ function getSymbols(deals: any) {
   }
 }
 
+function getPortfolio(deals: any) {
+  if (deals?.length > 0) {
+    return deals
+      .map(({ symbol }: { symbol: string }) => {
+        return symbol
+      })
+      .reduce(function (prev: { [x: string]: any }, cur: string | number) {
+        prev[cur] = (prev[cur] || 0) + 1
+        return prev
+      }, {})
+  }
+}
+
 export default async function DashboardPage() {
   const deals = await fetchDeals()
   const symbols = await getSymbols(deals)
+  const portfolio = await getPortfolio(deals)
 
   return (
     <>
@@ -110,16 +125,16 @@ export default async function DashboardPage() {
         />
       </div>
       <div className="hidden flex-col md:flex">
-        <div className="border-b">
+        {/* <div className="border-b">
           <div className="flex h-16 items-center px-4">
             <TeamSwitcher />
             <MainNav className="mx-6" />
             <div className="ml-auto flex items-center space-x-4">
-              {/* <Search /> */}
+              <Search />
               <UserNav />
             </div>
           </div>
-        </div>
+        </div> */}
         <div className="flex-1 space-y-4 p-8 pt-6">
           <div className="flex items-center justify-between space-y-2">
             <h2 className="text-3xl font-bold tracking-tight">
@@ -136,32 +151,21 @@ export default async function DashboardPage() {
           <Tabs defaultValue="overview" className="space-y-4">
             <TabsList>
               <TabsTrigger value="overview">Panel Principal</TabsTrigger>
-              <TabsTrigger value="risk-management">
-                Gestión de Riesgo
-              </TabsTrigger>
               <TabsTrigger value="transactions">Transacciones</TabsTrigger>
               <TabsTrigger value="results">Resultados</TabsTrigger>
             </TabsList>
             <TabsContent value="overview" className="space-y-4">
               <Suspense fallback={<p>Loading overview...</p>}>
-                <Overview deals={deals} symbols={symbols} />
+                <Overview
+                  deals={deals}
+                  symbols={symbols}
+                  portfolio={portfolio}
+                />
               </Suspense>
-            </TabsContent>
-            <TabsContent value="risk-management" className="space-y-4">
-              <Card className="col-span-4">
-                <CardHeader>
-                  <CardTitle>Gestión de Riesgo</CardTitle>
-                </CardHeader>
-                <CardContent className="pl-2">
-                  <Suspense fallback={<p>Loading...</p>}>
-                    <RiskManagement />
-                  </Suspense>
-                </CardContent>
-              </Card>
             </TabsContent>
             <TabsContent value="transactions" className="space-y-4">
               <h2>
-                <strong> Transacciones</strong>{" "}
+                <strong> Historial</strong>{" "}
               </h2>
               <Transactions data={deals} symbols={symbols} />
             </TabsContent>

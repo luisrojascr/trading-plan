@@ -37,7 +37,7 @@ const renderCustomizedLabel = ({
 
 export function WinsVsLost({ data }: any) {
   return (
-    <PieChart width={600} height={400}>
+    <PieChart width={400} height={400}>
       <Pie
         data={data}
         cx="50%"

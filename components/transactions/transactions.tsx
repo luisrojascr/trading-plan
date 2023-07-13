@@ -25,8 +25,8 @@ type Payment = {
 }
 
 export function Transactions({ data, symbols }: any) {
-  console.log("deals: ", data)
-  console.log("symbols: ", symbols)
+  // console.log("deals: ", data)
+  // console.log("symbols: ", symbols)
   return (
     <div>
       <div className="mb-4 grid grid-cols-5 gap-x-8 gap-y-4">
