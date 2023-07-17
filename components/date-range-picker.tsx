@@ -24,7 +24,6 @@ export function CalendarDateRangePicker({
   })
 
   const setDates = (dateRange: DateRange | undefined) => {
-    console.log("dates: ", dateRange)
     setDate(dateRange)
   }
 
