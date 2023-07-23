@@ -1,5 +1,3 @@
-"use server"
-
 import { Metadata } from "next"
 
 import {
@@ -13,6 +11,9 @@ import {
 } from "@/components/ui/table"
 import { numberFormat } from "@/components/helpers/number_format"
 import { MonthPickerDemo } from "@/components/risk-plan-month-picker"
+
+// This part is important!
+export const dynamic = "force-dynamic"
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -39,18 +40,27 @@ async function fetchAccountInfo() {
   }
 }
 
-async function fetchDeals() {
+async function fetchDeals(selectedMonth: string) {
   const region = "london"
   const accountId = "877a9b2c-81e0-4f50-91c8-5390b8e41cff"
-  // Ultimos 2 dias
+  const parsedSelectedMonth = Date.parse(selectedMonth)
+  // Last 2 days
   // const startTime = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
-  var currentDate = new Date()
+  // Current month
+  var today = new Date()
   const startTime = new Date(
-    currentDate.getFullYear(),
-    currentDate.getMonth(),
+    today.getFullYear(),
+    selectedMonth ? parsedSelectedMonth : today.getMonth(),
     1
   )
-  const endTime = currentDate // today
+  const endTime = selectedMonth
+    ? new Date(
+        today.getFullYear(),
+        new Date(parsedSelectedMonth).getMonth() + 1,
+        0
+      )
+    : today // today
+
   const URL = `https://mt-client-api-v1.${region}.agiliumtrade.ai/users/current/accounts/${accountId}/history-deals/time/${startTime}/${endTime}`
   try {
     const response = await fetch(URL, {
@@ -105,20 +115,26 @@ function getSwap(deals: any) {
   }
 }
 
-async function handleMonthChange(month: Date) {
-  "use server"
-  console.log("page month: ", month)
-}
-
-export default async function RiskPlanPage() {
+export default async function RiskPlanPage({
+  searchParams,
+}: {
+  searchParams?: { [key: string]: string | string[] | undefined }
+}) {
+  const selectedSearch = searchParams?.selectedPeriod ?? ""
+  const selected: string = Array.isArray(selectedSearch)
+    ? selectedSearch[0]
+    : selectedSearch
+  const parsedSelectedMonth = new Date(Date.parse(selected))
   const accountInfo = await fetchAccountInfo()
-  const deals = await fetchDeals()
-  const monthlyProfit = getMonthlyProfit(deals)
-  const monthlyLoss = getMonthlyLosses(deals)
-  const allSwap = await getSwap(deals).toFixed(2)
+  const deals = await fetchDeals(selected)
+  const monthlyProfit = deals.length === 0 ? null : getMonthlyProfit(deals)
+  const monthlyLoss = deals.length === 0 ? null : getMonthlyLosses(deals)
+  const allSwap = deals.length === 0 ? null : await getSwap(deals)?.toFixed(2)
   const netProfit = monthlyProfit + monthlyLoss - -allSwap
-
-  // const { fetchAccountInfo, accountData } = useAppStore()
+  const yieldByPeriod =
+    deals.length === 0
+      ? 0
+      : ((netProfit * 100) / (accountInfo.balance - netProfit)).toFixed(2)
 
   return (
     <div>
@@ -128,9 +144,10 @@ export default async function RiskPlanPage() {
             Gestión de Riesgo
           </h2>
           <div className="flex items-center space-x-2">
-            <MonthPickerDemo handleMonthChange={handleMonthChange} />
+            <MonthPickerDemo selectedPeriod={parsedSelectedMonth} />
           </div>
         </div>
+
         <Table>
           <TableCaption>
             Maneja tu plan de riesgo inteligentemente. Conoce tus números.
@@ -164,6 +181,7 @@ export default async function RiskPlanPage() {
             </TableRow>
           </TableBody>
         </Table>
+        <p> {deals.length === 0 && "No hay datos para mostrar este mes."} </p>
         <Table className="mt-5">
           <TableHeader>
             <TableRow>
@@ -187,11 +205,7 @@ export default async function RiskPlanPage() {
                 {numberFormat(accountInfo?.equity)}
               </TableCell>
               <TableCell className="text-center">
-                {(
-                  (netProfit * 100) /
-                  (accountInfo.balance - netProfit)
-                ).toFixed(2)}
-                %
+                {yieldByPeriod ? `${yieldByPeriod}%` : yieldByPeriod}
               </TableCell>
               <TableCell className="text-center">
                 {numberFormat(netProfit)}

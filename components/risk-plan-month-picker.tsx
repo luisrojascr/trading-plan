@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { addMonths, format, isSameMonth } from "date-fns"
 import { Calendar as CalendarIcon } from "lucide-react"
 
@@ -13,11 +14,14 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover"
 
-export function MonthPickerDemo({ handleMonthChange }: any) {
+export function MonthPickerDemo({ selectedPeriod }: { selectedPeriod: Date }) {
   const [date, setDate] = React.useState<Date>()
   const today = new Date()
   const nextMonth = addMonths(new Date(), 1)
   const [month, setMonth] = React.useState<Date>(nextMonth)
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams: any = useSearchParams()
 
   const footer = (
     <button
@@ -29,8 +33,14 @@ export function MonthPickerDemo({ handleMonthChange }: any) {
   )
 
   const handleMonth = async (month: Date) => {
+    const current = new URLSearchParams(searchParams)
     setMonth(month)
-    await handleMonthChange(month)
+    current.set("selectedPeriod", month.toString())
+
+    const search = current.toString()
+    const query = search ? `?${search}` : ""
+
+    router.push(`${pathname}${query}`)
   }
 
   return (
@@ -47,13 +57,13 @@ export function MonthPickerDemo({ handleMonthChange }: any) {
           {date ? (
             format(date, "PPP")
           ) : (
-            <span>{format(month, "MMMM yyyy")}</span>
+            <span>{format(selectedPeriod ? selectedPeriod : month, "MMMM yyyy")}</span>
           )}
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-auto p-0">
         <Calendar
-          month={month}
+          month={selectedPeriod ? selectedPeriod : month}
           onMonthChange={handleMonth}
           toDate={new Date(today)}
           footer={footer}
