@@ -19,6 +19,25 @@ export interface AccountData {
   type: string
 }
 
+const defaultData = {
+  balance: 0,
+  broker: "",
+  credit: 0,
+  currency: "",
+  equity: 0,
+  freeMargin: 0,
+  investorMode: false,
+  leverage: 0,
+  login: "",
+  margin: 0,
+  marginMode: "",
+  name: "",
+  platform: "",
+  server: "",
+  tradeAllowed: false,
+  type: "",
+}
+
 export interface AccountInfoSlice {
   accountData: AccountData
   fetchAccountInfo: () => void
@@ -27,7 +46,7 @@ export interface AccountInfoSlice {
 export const createAccountInfoSlice: StateCreator<AccountInfoSlice> = (
   set
 ) => ({
-  accountData: {},
+  accountData: defaultData,
   fetchAccountInfo: async () => {
     const region = "london"
     const accountId = "877a9b2c-81e0-4f50-91c8-5390b8e41cff"
