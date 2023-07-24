@@ -50,7 +50,6 @@ async function fetchAccountInfo() {
 async function fetchDeals(selectedMonth: string) {
   const region = "singapore" // DEMO londong
   const accountId = "51bffb5a-1c6f-4ede-92fa-e06df7d82b07" // DEMO "877a9b2c-81e0-4f50-91c8-5390b8e41cff"
-  console.log("selectedMonth: ", selectedMonth)
   const parsedSelectedMonth = Date.parse(selectedMonth)
   // Last 2 days
   // const startTime = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
@@ -194,12 +193,37 @@ export default async function RiskPlanPage({
         <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-6">
           <Card className="col-span-2">
             <CardHeader>
-              <CardTitle>Rendimiento por Indice </CardTitle>
+              <CardTitle>Objetivos de la cuenta</CardTitle>
               <CardDescription>
-                Rendimiento en dólares por cada índice
+                Proyección de objetivos mensuales de la cuenta
               </CardDescription>
             </CardHeader>
-            <CardContent className="pl-2">Card content 1...</CardContent>
+            <CardContent className="pl-2">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead className="text-center">
+                      Balance de la cuenta
+                    </TableHead>
+                    <TableHead className="text-center">
+                      Objetivo de rentabilidad mensual
+                    </TableHead>
+                    <TableHead className="text-center">
+                      Objetivo Beneficio Mensual
+                    </TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  <TableRow>
+                    <TableCell className="text-center font-medium">
+                      $1,000
+                    </TableCell>
+                    <TableCell className="text-center">20%</TableCell>
+                    <TableCell className="text-center">$200</TableCell>
+                  </TableRow>
+                </TableBody>
+              </Table>
+            </CardContent>
           </Card>
           <Card className="col-span-2">
             <CardHeader>

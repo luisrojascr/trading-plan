@@ -43,7 +43,7 @@ export function Transactions({ data, symbols }: any) {
   const handleOnChange = useCallback(
     (selectedOption: string) => {
       const symbolNames = symbols.map((symbol: SymbolType) => symbol.symbol)
-      console.log("form: ", form)
+      // console.log("form: ", form)
       // form.reset()
       // form.reset({
       //   transactionSymbol: "allSymbols",

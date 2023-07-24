@@ -18,8 +18,8 @@ export const metadata: Metadata = {
 }
 
 async function fetchDeals(fromDate: string, toDate: string) {
-  const region = "singapore" // DEMO london
-  const accountId = "51bffb5a-1c6f-4ede-92fa-e06df7d82b07" // DEMO "877a9b2c-81e0-4f50-91c8-5390b8e41cff"
+  const region = "london" // "singapore" // DEMO london
+  const accountId = "5ce2f54c-84da-4976-842b-023ab8d04ad5" // "51bffb5a-1c6f-4ede-92fa-e06df7d82b07" // DEMO "877a9b2c-81e0-4f50-91c8-5390b8e41cff"
   const parsedFromDate = new Date(fromDate)
   const parsedtoDate = new Date(toDate)
   // Ultimos 2 dias
@@ -29,7 +29,6 @@ async function fetchDeals(fromDate: string, toDate: string) {
     ? new Date(parsedFromDate)
     : new Date(today.getFullYear(), today.getMonth(), 1)
   const endTime = toDate ? parsedtoDate : today // today
-  console.log("==========")
   const URL = `https://mt-client-api-v1.${region}.agiliumtrade.ai/users/current/accounts/${accountId}/history-deals/time/${startTime}/${endTime}`
   try {
     const response = await fetch(URL, {
