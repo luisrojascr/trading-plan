@@ -2,36 +2,34 @@ import { Suspense } from "react"
 import { Metadata } from "next"
 import Image from "next/image"
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CalendarDateRangePicker } from "@/components/date-range-picker"
-import { MainNav } from "@/components/main-nav"
-import { OverviewProps } from "@/components/models/models"
+import { SymbolType } from "@/components/models/symbols"
 import { Overview } from "@/components/overview"
-import { OverviewLoading } from "@/components/overview-loading"
 import { Results } from "@/components/results/results"
-import { RiskManagement } from "@/components/risk-management"
-import TeamSwitcher from "@/components/team-switcher"
 import { Transactions } from "@/components/transactions/transactions"
-import { UserNav } from "@/components/user-nav"
+
+// This part is important!
+export const dynamic = "force-dynamic"
 
 export const metadata: Metadata = {
   title: "Dashboard",
   description: "Example dashboard app using the components.",
 }
 
-async function fetchDeals() {
-  const region = "london"
-  const accountId = "877a9b2c-81e0-4f50-91c8-5390b8e41cff"
+async function fetchDeals(fromDate: string, toDate: string) {
+  const region = "singapore" // DEMO london
+  const accountId = "51bffb5a-1c6f-4ede-92fa-e06df7d82b07" // DEMO "877a9b2c-81e0-4f50-91c8-5390b8e41cff"
+  const parsedFromDate = new Date(fromDate)
+  const parsedtoDate = new Date(toDate)
   // Ultimos 2 dias
   // const startTime = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
-  var currentDate = new Date()
-  const startTime = new Date(
-    currentDate.getFullYear(),
-    currentDate.getMonth(),
-    1
-  )
-  const endTime = currentDate // today
+  var today = new Date()
+  const startTime = fromDate
+    ? new Date(parsedFromDate)
+    : new Date(today.getFullYear(), today.getMonth(), 1)
+  const endTime = toDate ? parsedtoDate : today // today
+  console.log("==========")
   const URL = `https://mt-client-api-v1.${region}.agiliumtrade.ai/users/current/accounts/${accountId}/history-deals/time/${startTime}/${endTime}`
   try {
     const response = await fetch(URL, {
@@ -77,7 +75,7 @@ function getSymbols(deals: any) {
         else acc.push(cur)
         return acc
       }, [])
-      .map(({ id, symbol, profit, lost }: OverviewProps) => ({
+      .map(({ id, symbol, profit, lost }: SymbolType) => ({
         id,
         symbol,
         profit,
@@ -101,8 +99,20 @@ function getPortfolio(deals: any) {
   }
 }
 
-export default async function DashboardPage() {
-  const deals = await fetchDeals()
+export default async function DashboardPage({
+  searchParams,
+}: {
+  searchParams?: { [key: string]: string | string[] | undefined }
+}) {
+  const selectedFromDate = searchParams?.from ?? ""
+  const selectedFrom: string = Array.isArray(selectedFromDate)
+    ? selectedFromDate[0]
+    : selectedFromDate
+  const selectedToDate = searchParams?.to ?? ""
+  const selectedTo: string = Array.isArray(selectedToDate)
+    ? selectedToDate[0]
+    : selectedToDate
+  const deals = await fetchDeals(selectedFrom, selectedTo)
   const symbols = await getSymbols(deals)
   const portfolio = await getPortfolio(deals)
 

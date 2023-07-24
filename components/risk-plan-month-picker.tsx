@@ -17,7 +17,7 @@ import {
 export function MonthPickerDemo({ selectedPeriod }: { selectedPeriod: Date }) {
   const [date, setDate] = React.useState<Date>()
   const today = new Date()
-  const nextMonth = addMonths(new Date(), 1)
+  const nextMonth = addMonths(new Date(), 0)
   const [month, setMonth] = React.useState<Date>(nextMonth)
   const router = useRouter()
   const pathname = usePathname()
@@ -57,7 +57,9 @@ export function MonthPickerDemo({ selectedPeriod }: { selectedPeriod: Date }) {
           {date ? (
             format(date, "PPP")
           ) : (
-            <span>{format(selectedPeriod ? selectedPeriod : month, "MMMM yyyy")}</span>
+            <span>
+              {format(selectedPeriod ? selectedPeriod : month, "MMMM yyyy")}
+            </span>
           )}
         </Button>
       </PopoverTrigger>

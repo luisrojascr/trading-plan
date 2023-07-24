@@ -1,7 +1,7 @@
 /* eslint-disable tailwindcss/classnames-order */
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import {
   ColumnDef,
   SortingState,
@@ -91,7 +91,7 @@ export function DataTable<TData, TValue>({
                   colSpan={columns.length}
                   className="h-24 text-center"
                 >
-                  No results.
+                  No hay resultados.
                 </TableCell>
               </TableRow>
             )}

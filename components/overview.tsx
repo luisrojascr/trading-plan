@@ -1,9 +1,9 @@
 import { DollarSign, TrendingDown, TrendingUp, Users } from "lucide-react"
 
 import { numberFormat } from "./helpers/number_format"
-import { OverviewProps } from "./models/models"
-import { OverviewChart } from "./overview-chart"
-import { Portfolio } from "./portafolio"
+import { SymbolType } from "./models/symbols"
+import { OverviewChart } from "./overview/overview-chart"
+import { Portfolio } from "./overview/overview-portfolio"
 import {
   Card,
   CardContent,
@@ -14,8 +14,8 @@ import {
 import { WinsVsLost } from "./wins-vs-lost"
 
 async function fetchAccountInfo() {
-  const region = "london"
-  const accountId = "877a9b2c-81e0-4f50-91c8-5390b8e41cff"
+  const region = "singapore" // DEMO london
+  const accountId = "51bffb5a-1c6f-4ede-92fa-e06df7d82b07" // DEMO "877a9b2c-81e0-4f50-91c8-5390b8e41cff"
   const URL = `https://mt-client-api-v1.${region}.agiliumtrade.ai/users/current/accounts/${accountId}/account-information`
   try {
     const response = await fetch(URL, {
@@ -62,7 +62,7 @@ function getSwap(deals: any) {
 
 export async function Overview({ deals, symbols, portfolio }: any) {
   const accountInfo = await fetchAccountInfo()
-  const overviewChart = symbols?.map((symbol: OverviewProps) => ({
+  const overviewChart = symbols?.map((symbol: SymbolType) => ({
     ...symbol,
     ganancia: symbol.profit.toFixed(2),
     perdida: symbol.lost.toFixed(2),
@@ -86,15 +86,18 @@ export async function Overview({ deals, symbols, portfolio }: any) {
     },
   ]
 
-  const portfolioChart = Object.entries(portfolio).map(([key, val]) => ({
-    name: key,
-    value: val,
-  }))
+  const portfolioChart = portfolio
+    ? Object.entries(portfolio).map(([key, val]) => ({
+        name: key,
+        value: val,
+      }))
+    : []
 
   const monthlyProfit = getMonthlyProfit(deals)
   const monthlyLoss = getMonthlyLosses(deals)
-  const allSwap = await getSwap(deals).toFixed(2)
+  const allSwap = await getSwap(deals)?.toFixed(2)
   const netProfit = monthlyProfit + monthlyLoss - -allSwap
+  const periodYield = (netProfit * 100) / (accountInfo.balance - netProfit)
 
   return (
     <>
@@ -102,7 +105,7 @@ export async function Overview({ deals, symbols, portfolio }: any) {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
-              Balance de la cuenta
+              Balance Actual de la cuenta
             </CardTitle>
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
@@ -111,7 +114,11 @@ export async function Overview({ deals, symbols, portfolio }: any) {
               {numberFormat(accountInfo.balance)}
             </p>
             <p className="text-center text-xs text-muted-foreground">
-              +$637.20 del capital inicial
+              {numberFormat(accountInfo.balance - netProfit)}
+              {netProfit > 0
+                ? `+${numberFormat(netProfit)} ganados`
+                : `${numberFormat(netProfit)} perdidos`}{" "}
+              en el período
             </p>
           </CardContent>
         </Card>
@@ -166,12 +173,15 @@ export async function Overview({ deals, symbols, portfolio }: any) {
             <DollarSign className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <p className="text-center text-4xl font-bold text-green-500">
-              {((netProfit * 100) / (accountInfo.balance - netProfit)).toFixed(
-                2
-              )}
-              %
-            </p>
+            {periodYield > 0 ? (
+              <p className="text-center text-4xl font-bold text-green-500">
+                {periodYield.toFixed(2)}%
+              </p>
+            ) : (
+              <p className="text-center text-4xl font-bold text-red-500">
+                {periodYield.toFixed(2)}%
+              </p>
+            )}
             {/* <p className="text-center text-xs text-muted-foreground">
               +3% del mes anterior
             </p> */}
@@ -183,9 +193,16 @@ export async function Overview({ deals, symbols, portfolio }: any) {
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <p className="text-center text-2xl font-bold text-green-500">
-              {numberFormat(netProfit)}
-            </p>
+            {netProfit > 0 ? (
+              <p className="text-center text-2xl font-bold text-green-500">
+                {numberFormat(netProfit)}
+              </p>
+            ) : (
+              <p className="text-center text-2xl font-bold text-red-500">
+                {numberFormat(netProfit)}
+              </p>
+            )}
+
             <p className="text-center text-xs text-muted-foreground">
               Beneficio Bruto - Pérdidas - Swap
             </p>
@@ -237,7 +254,8 @@ export async function Overview({ deals, symbols, portfolio }: any) {
             </CardDescription>
           </CardHeader>
           <CardContent className="pl-2">
-            <OverviewChart data={overviewChart} />
+            <OverviewChart data={overviewChart} type="win" />
+            <OverviewChart data={overviewChart} type="lost" />
           </CardContent>
         </Card>
         <Card className="col-span-2">

@@ -75,7 +75,17 @@ export const columns: ColumnDef<Transaction>[] = [
   },
   {
     accessorKey: "profit",
-    header: () => <div className="text-center">Ganancia en $</div>,
+    header: ({ column }) => (
+      <div className="text-center">
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Ganancia en $
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      </div>
+    ),
     cell: ({ row }) => {
       const profit: any = row.getValue("profit")
       return profit >= 0 ? (
@@ -87,7 +97,17 @@ export const columns: ColumnDef<Transaction>[] = [
   },
   {
     accessorKey: "profit2",
-    header: () => <div className="text-center">Pérdida en $</div>,
+    header: ({ column }) => (
+      <div className="text-center">
+        <Button
+          variant="ghost"
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+        >
+          Pérdida en $
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </Button>
+      </div>
+    ),
     cell: ({ row }) => {
       const profit: any = row.getValue("profit2")
       return profit < 0 ? (

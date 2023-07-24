@@ -56,10 +56,6 @@ const groups = [
         label: "Real 1",
         value: "acme-inc",
       },
-      {
-        label: "Real 2",
-        value: "monsters",
-      },
     ],
   },
 ]
@@ -96,7 +92,7 @@ export default function TeamSwitcher({ className }: TeamSwitcherProps) {
               />
               <AvatarFallback>SC</AvatarFallback>
             </Avatar>
-            {/* {selectedTeam.label} */} Luis Rojas
+            {selectedTeam.label}
             <ChevronsUpDown className="ml-auto h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>

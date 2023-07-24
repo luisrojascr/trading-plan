@@ -1,6 +1,13 @@
 import { Metadata } from "next"
 
 import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card"
+import {
   Table,
   TableBody,
   TableCaption,
@@ -21,8 +28,8 @@ export const metadata: Metadata = {
 }
 
 async function fetchAccountInfo() {
-  const region = "london"
-  const accountId = "877a9b2c-81e0-4f50-91c8-5390b8e41cff"
+  const region = "singapore" // DEMO londong
+  const accountId = "51bffb5a-1c6f-4ede-92fa-e06df7d82b07" // DEMO "877a9b2c-81e0-4f50-91c8-5390b8e41cff"
   const URL = `https://mt-client-api-v1.${region}.agiliumtrade.ai/users/current/accounts/${accountId}/account-information`
   try {
     const response = await fetch(URL, {
@@ -41,8 +48,9 @@ async function fetchAccountInfo() {
 }
 
 async function fetchDeals(selectedMonth: string) {
-  const region = "london"
-  const accountId = "877a9b2c-81e0-4f50-91c8-5390b8e41cff"
+  const region = "singapore" // DEMO londong
+  const accountId = "51bffb5a-1c6f-4ede-92fa-e06df7d82b07" // DEMO "877a9b2c-81e0-4f50-91c8-5390b8e41cff"
+  console.log("selectedMonth: ", selectedMonth)
   const parsedSelectedMonth = Date.parse(selectedMonth)
   // Last 2 days
   // const startTime = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
@@ -132,7 +140,7 @@ export default async function RiskPlanPage({
   const allSwap = deals.length === 0 ? null : await getSwap(deals)?.toFixed(2)
   const netProfit = monthlyProfit + monthlyLoss - -allSwap
   const yieldByPeriod =
-    deals.length === 0
+    deals.length === 0 || accountInfo.error
       ? 0
       : ((netProfit * 100) / (accountInfo.balance - netProfit)).toFixed(2)
 
@@ -182,40 +190,42 @@ export default async function RiskPlanPage({
           </TableBody>
         </Table>
         <p> {deals.length === 0 && "No hay datos para mostrar este mes."} </p>
-        <Table className="mt-5">
-          <TableHeader>
-            <TableRow>
-              <TableHead></TableHead>
-              <TableHead className="text-center">Balance Actual</TableHead>
-              <TableHead className="text-center">
-                Objetivo Mensual Alcanzado %
-              </TableHead>
-              <TableHead className="text-center">
-                Objetivo Mensual Alcanzado $ (ganancia neta)
-              </TableHead>
-              <TableHead className="text-center">
-                Pérdida Total Mensual $
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            <TableRow>
-              <TableCell className="font-medium">Cuenta Real</TableCell>
-              <TableCell className="text-center font-medium">
-                {numberFormat(accountInfo?.equity)}
-              </TableCell>
-              <TableCell className="text-center">
-                {yieldByPeriod ? `${yieldByPeriod}%` : yieldByPeriod}
-              </TableCell>
-              <TableCell className="text-center">
-                {numberFormat(netProfit)}
-              </TableCell>
-              <TableCell className="text-center">
-                {numberFormat(monthlyLoss)}
-              </TableCell>
-            </TableRow>
-          </TableBody>
-        </Table>
+
+        <div className="grid gap-4 md:grid-cols-3 lg:grid-cols-6">
+          <Card className="col-span-2">
+            <CardHeader>
+              <CardTitle>Rendimiento por Indice </CardTitle>
+              <CardDescription>
+                Rendimiento en dólares por cada índice
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="pl-2">Card content 1...</CardContent>
+          </Card>
+          <Card className="col-span-2">
+            <CardHeader>
+              <CardTitle>Portafolio</CardTitle>
+              <CardDescription>
+                Número de operaciones por cada índice
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {accountInfo.error
+                ? "No hay datos de la cuenta"
+                : numberFormat(accountInfo?.equity)}
+              {yieldByPeriod ? `${yieldByPeriod}%` : yieldByPeriod}
+              {numberFormat(netProfit)}
+              {numberFormat(monthlyLoss)}
+            </CardContent>
+          </Card>
+          <Card className="col-span-2">
+            <CardHeader>
+              <CardTitle>
+                Operaciones Ganadas vs Operaciones Perdidas{" "}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="pl-2">Card content 3...</CardContent>
+          </Card>
+        </div>
       </div>
     </div>
   )

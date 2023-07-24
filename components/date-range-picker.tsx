@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { addDays, format } from "date-fns"
 import { Calendar as CalendarIcon } from "lucide-react"
 import { DateRange } from "react-day-picker"
@@ -22,9 +23,23 @@ export function CalendarDateRangePicker({
     from: new Date(currentDate.getFullYear(), currentDate.getMonth(), 1),
     to: currentDate,
   })
+  const router = useRouter()
+  const pathname = usePathname()
+  const searchParams: any = useSearchParams()
 
   const setDates = (dateRange: DateRange | undefined) => {
-    setDate(dateRange)
+    const current = new URLSearchParams(searchParams)
+    if (dateRange) {
+      const dateFrom = dateRange.from as Date
+      const dateTo = dateRange.to as Date
+      setDate(dateRange)
+      current.set("from", new Date(dateFrom).toString())
+      current.set("to", new Date(dateTo).toString())
+      const search = current.toString()
+      const query = search ? `?${search}` : ""
+
+      router.push(`${pathname}${query}`)
+    }
   }
 
   return (

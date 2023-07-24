@@ -12,9 +12,9 @@ import {
   YAxis,
 } from "recharts"
 
-export function OverviewChart({ data }: any) {
+export function OverviewChart({ data, type }: any) {
   return (
-    <ResponsiveContainer width="100%" height={500}>
+    <ResponsiveContainer width="100%" height={300}>
       <BarChart data={data}>
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis
@@ -34,8 +34,11 @@ export function OverviewChart({ data }: any) {
         <Tooltip />
         <Legend />
         <ReferenceLine y={0} stroke="#000" />
-        <Bar dataKey="ganancia" fill="#3ad69d" radius={[4, 4, 0, 0]} />
-        <Bar dataKey="perdida" fill="#f46a6a" radius={[4, 4, 0, 0]} />
+        {type === "win" ? (
+          <Bar dataKey="ganancia" fill="#3ad69d" radius={[4, 4, 0, 0]} />
+        ) : (
+          <Bar dataKey="perdida" fill="#f46a6a" radius={[4, 4, 0, 0]} />
+        )}
       </BarChart>
     </ResponsiveContainer>
   )
