@@ -18,7 +18,7 @@ const COLORS = [
 
 export function Portfolio({ data }: any) {
   return (
-    <PieChart width={400} height={400}>
+    <PieChart width={400} height={435}>
       <Pie
         dataKey="value"
         data={data}

@@ -61,6 +61,10 @@ export function Transactions({ data, symbols }: any) {
           return setDeals(data.filter((deal: any) => deal.type === "Buy"))
         case "sell":
           return setDeals(data.filter((deal: any) => deal.type === "Sell"))
+        case "withdrawal":
+          return setDeals(
+            data.filter((deal: any) => deal.type === "Withdrawal")
+          )
         case "it's a symbol":
           return setDeals(
             data.filter((deal: any) => deal.symbol === selectedOption)
@@ -137,6 +141,7 @@ export function Transactions({ data, symbols }: any) {
                         <SelectItem value="allType">Todos</SelectItem>
                         <SelectItem value="buy">Compra</SelectItem>
                         <SelectItem value="sell">Venta</SelectItem>
+                        <SelectItem value="withdrawal">Retiro</SelectItem>
                       </SelectContent>
                     </Select>
                     <FormMessage />

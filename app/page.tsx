@@ -17,38 +17,79 @@ export const metadata: Metadata = {
   description: "Example dashboard app using the components.",
 }
 
+async function makeGETRequest(
+  startTime: Date,
+  endTime: Date,
+  accountId: string,
+  offset: number
+) {
+  const region = "london" // accountInfo.connections[0].region;
+  const URL = `https://mt-client-api-v1.${region}.agiliumtrade.ai/users/current/accounts/${accountId}/history-deals/time/${startTime}/${endTime}?offset=${offset}`
+  const res = await fetch(URL, {
+    method: "GET",
+    headers: {
+      "auth-token": process.env.META_API_TOKEN || "",
+    },
+    referrerPolicy: "no-referrer",
+  })
+
+  return res.json()
+}
+
 async function fetchDeals(fromDate: string, toDate: string) {
-  const region = "london" // "singapore" // DEMO london
-  const accountId = "5ce2f54c-84da-4976-842b-023ab8d04ad5" // "51bffb5a-1c6f-4ede-92fa-e06df7d82b07" // DEMO "877a9b2c-81e0-4f50-91c8-5390b8e41cff"
+  const cuentaRealLis = "5ce2f54c-84da-4976-842b-023ab8d04ad5"
+  const cuentaRealMia = "51bffb5a-1c6f-4ede-92fa-e06df7d82b07"
+  const cuentaDemoMia = "877a9b2c-81e0-4f50-91c8-5390b8e41cff"
+  const region = "london" // DEMO london
+  const accountId = cuentaRealLis
   const parsedFromDate = new Date(fromDate)
   const parsedtoDate = new Date(toDate)
   // Ultimos 2 dias
   // const startTime = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
-  var today = new Date()
+  const today = new Date()
+  const tomorrow = new Date(today)
+  tomorrow.setDate(tomorrow.getDate() + 1)
+  parsedtoDate.setDate(parsedtoDate.getDate() + 1)
   const startTime = fromDate
     ? new Date(parsedFromDate)
     : new Date(today.getFullYear(), today.getMonth(), 1)
-  const endTime = toDate ? parsedtoDate : today // today
-  const URL = `https://mt-client-api-v1.${region}.agiliumtrade.ai/users/current/accounts/${accountId}/history-deals/time/${startTime}/${endTime}`
-  try {
-    const response = await fetch(URL, {
-      method: "GET",
-      headers: {
-        "auth-token": process.env.META_API_TOKEN || "",
-      },
-      referrerPolicy: "no-referrer",
-    })
+  const endTime = toDate ? parsedtoDate : tomorrow // today
+  let offset = 0
+  let data = []
+  let newReq: any = []
 
-    const data = await response.json()
+  try {
+    let response = makeGETRequest(startTime, endTime, accountId, offset)
+    while ((await response).length === 1000) {
+      offset += 1000
+      newReq = response
+      response = makeGETRequest(startTime, endTime, accountId, offset)
+      data = (await newReq).concat(await response)
+    }
     const operations = data
-      .filter((deal: any) => deal.entryType == "DEAL_ENTRY_OUT")
-      .map((deal: any) => ({
-        ...deal,
-        profit2: deal.profit,
-        status: deal.profit >= 0 ? "win" : "lost",
-        swap: deal.swap,
-        type: deal.type === "DEAL_TYPE_BUY" ? "Sell" : "Buy",
-      }))
+      .filter(
+        (deal: any) =>
+          deal.entryType === "DEAL_ENTRY_OUT" ||
+          deal.type === "DEAL_TYPE_BALANCE"
+      )
+      .map((deal: any) => {
+        let dealType = ""
+        if (deal.type === "DEAL_TYPE_BUY") {
+          dealType = "Sell"
+        } else if (deal.type === "DEAL_TYPE_SELL") {
+          dealType = "Buy"
+        } else if (deal.type === "DEAL_TYPE_BALANCE") {
+          dealType = "Withdrawal"
+        }
+        return {
+          ...deal,
+          profit2: deal.profit,
+          status: deal.profit >= 0 ? "win" : "lost",
+          swap: deal.swap,
+          type: dealType,
+          withdrawal: deal.type === "DEAL_TYPE_BALANCE" ? deal.profit : 0,
+        }
+      })
 
     return operations
   } catch (err) {
@@ -147,7 +188,7 @@ export default async function DashboardPage({
         <div className="flex-1 space-y-4 p-8 pt-6">
           <div className="flex items-center justify-between space-y-2">
             <h2 className="text-3xl font-bold tracking-tight">
-              Plan de Trading
+              Estadísticas de la cuenta
             </h2>
             <div className="flex items-center space-x-2">
               <CalendarDateRangePicker />

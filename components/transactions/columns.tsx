@@ -62,6 +62,9 @@ export const columns: ColumnDef<Transaction>[] = [
       if (row.getValue("type") && row.getValue("type") === "Sell") {
         return <span className="block text-center">Venta</span>
       }
+      if (row.getValue("type") && row.getValue("type") === "Withdrawal") {
+        return <span className="block text-center">Retiro</span>
+      }
 
       return ""
     },
