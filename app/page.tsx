@@ -1,6 +1,7 @@
 import { Suspense } from "react"
 import { Metadata } from "next"
 import Image from "next/image"
+import { format } from "date-fns"
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { CalendarDateRangePicker } from "@/components/date-range-picker"
@@ -17,35 +18,42 @@ export const metadata: Metadata = {
   description: "Example dashboard app using the components.",
 }
 
-async function makeGETRequest(
-  startTime: Date,
-  endTime: Date,
+async function fetchHistoricalTrades(
+  startTime: string,
+  endTime: string,
   accountId: string,
   offset: number
 ) {
-  const region = "london" // accountInfo.connections[0].region;
-  const URL = `https://mt-client-api-v1.${region}.agiliumtrade.ai/users/current/accounts/${accountId}/history-deals/time/${startTime}/${endTime}?offset=${offset}`
-  const res = await fetch(URL, {
-    method: "GET",
-    headers: {
-      "auth-token": process.env.META_API_TOKEN || "",
-    },
-    referrerPolicy: "no-referrer",
-  })
+  const region = "london"
+  const URL = `https://metastats-api-v1.${region}.agiliumtrade.ai/users/current/accounts/${accountId}/historical-trades/${startTime}/${endTime}?offset=${offset}`
+  // const URL = `https://mt-client-api-v1.${region}.agiliumtrade.ai/users/current/accounts/${accountId}/history-deals/time/${startTime}/${endTime}?offset=${offset}`
 
-  return res.json()
+  let errorMessage = ""
+  let responseTrades = []
+  try {
+    const res = await fetch(URL, {
+      method: "GET",
+      headers: {
+        "auth-token": process.env.META_API_TOKEN || "",
+      },
+      referrerPolicy: "no-referrer",
+    })
+    const response = await res.json()
+    const { trades } = response
+    responseTrades = trades
+    // console.log("trades: ", trades)
+  } catch (error: any) {
+    console.log("historical-trades fetch error: ", error.message)
+    errorMessage = error.message
+  }
+
+  return responseTrades
 }
 
-async function fetchDeals(fromDate: string, toDate: string) {
-  const cuentaRealLis = "5ce2f54c-84da-4976-842b-023ab8d04ad5"
-  const cuentaRealMia = "51bffb5a-1c6f-4ede-92fa-e06df7d82b07"
-  const cuentaDemoMia = "877a9b2c-81e0-4f50-91c8-5390b8e41cff"
-  const region = "london" // DEMO london
-  const accountId = cuentaRealLis
+async function fetchDeals(account: string, fromDate: string, toDate: string) {
+  const accountId = account
   const parsedFromDate = new Date(fromDate)
   const parsedtoDate = new Date(toDate)
-  // Ultimos 2 dias
-  // const startTime = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000)
   const today = new Date()
   const tomorrow = new Date(today)
   tomorrow.setDate(tomorrow.getDate() + 1)
@@ -54,47 +62,48 @@ async function fetchDeals(fromDate: string, toDate: string) {
     ? new Date(parsedFromDate)
     : new Date(today.getFullYear(), today.getMonth(), 1)
   const endTime = toDate ? parsedtoDate : tomorrow // today
+
+  const startTimeSp = "2023-07-01%2023:00:00.000"
+  const endTimeSp = format(new Date(endTime), "yyyy-MM-dd%yyyy:HH:mm:ss.SSS") // "2023-07-30%2023:00:00.000"
+  console.log("endTimeSp: ", endTimeSp)
   let offset = 0
-  let data = []
+  let data: any[] = []
   let newReq: any = []
 
-  try {
-    let response = makeGETRequest(startTime, endTime, accountId, offset)
-    while ((await response).length === 1000) {
-      offset += 1000
-      newReq = response
-      response = makeGETRequest(startTime, endTime, accountId, offset)
-      data = (await newReq).concat(await response)
-    }
-    const operations = data
-      .filter(
-        (deal: any) =>
-          deal.entryType === "DEAL_ENTRY_OUT" ||
-          deal.type === "DEAL_TYPE_BALANCE"
-      )
-      .map((deal: any) => {
-        let dealType = ""
-        if (deal.type === "DEAL_TYPE_BUY") {
-          dealType = "Sell"
-        } else if (deal.type === "DEAL_TYPE_SELL") {
-          dealType = "Buy"
-        } else if (deal.type === "DEAL_TYPE_BALANCE") {
-          dealType = "Withdrawal"
-        }
-        return {
-          ...deal,
-          profit2: deal.profit,
-          status: deal.profit >= 0 ? "win" : "lost",
-          swap: deal.swap,
-          type: dealType,
-          withdrawal: deal.type === "DEAL_TYPE_BALANCE" ? deal.profit : 0,
-        }
-      })
-
-    return operations
-  } catch (err) {
-    console.error(err)
+  let response = await fetchHistoricalTrades(
+    startTimeSp,
+    endTimeSp,
+    accountId,
+    offset
+  )
+  if (response?.errorMessage) {
+    return []
   }
+  data = response
+
+  while (response?.length === 1000) {
+    offset += 1000
+    newReq = response
+    response = await fetchHistoricalTrades(
+      startTimeSp,
+      endTimeSp,
+      accountId,
+      offset
+    )
+    console.log("response: ", response)
+    data = newReq.concat(response)
+  }
+
+  const operations = data?.map((deal: any) => {
+    return {
+      ...deal,
+      profit2: deal.profit,
+      swap: deal.swap || 0,
+      withdrawal: deal.type === "DEAL_TYPE_BALANCE" ? deal.profit : 0,
+    }
+  })
+  // console.log("operations: ", operations)
+  return operations
 }
 
 function getSymbols(deals: any) {
@@ -152,9 +161,13 @@ export default async function DashboardPage({
   const selectedTo: string = Array.isArray(selectedToDate)
     ? selectedToDate[0]
     : selectedToDate
-  const deals = await fetchDeals(selectedFrom, selectedTo)
-  const symbols = await getSymbols(deals)
-  const portfolio = await getPortfolio(deals)
+  const cuentaRealLis = "26b4718c-1a6d-42f6-8200-9060c890e638"
+  const cuentaRealMia = "51bffb5a-1c6f-4ede-92fa-e06df7d82b07"
+  const cuentaDemoMia = "877a9b2c-81e0-4f50-91c8-5390b8e41cff"
+  const region = "london" // DEMO london
+  // const deals = await fetchDeals(cuentaRealLis, selectedFrom, selectedTo)
+  // const symbols = await getSymbols(deals)
+  // const portfolio = await getPortfolio(deals)
 
   return (
     <>
@@ -205,25 +218,27 @@ export default async function DashboardPage({
               <TabsTrigger value="results">Resultados</TabsTrigger>
             </TabsList>
             <TabsContent value="overview" className="space-y-4">
-              <Suspense fallback={<p>Loading overview...</p>}>
+              {/* <Suspense fallback={<p>Loading overview...</p>}>
                 <Overview
                   deals={deals}
                   symbols={symbols}
                   portfolio={portfolio}
                 />
-              </Suspense>
+              </Suspense> */}
+              Overview
             </TabsContent>
             <TabsContent value="transactions" className="space-y-4">
               <h2>
                 <strong> Historial</strong>{" "}
               </h2>
-              <Transactions data={deals} symbols={symbols} />
+              <Transactions data={[]} symbols={[]} />
             </TabsContent>
             <TabsContent value="results" className="space-y-4">
               <h2>
                 <strong>Resultados</strong>{" "}
               </h2>
-              <Results symbols={symbols} deals={deals} />
+              {/* <Results symbols={symbols} deals={deals} /> */}
+              Results
             </TabsContent>
           </Tabs>
         </div>

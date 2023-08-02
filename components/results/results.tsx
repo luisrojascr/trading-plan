@@ -21,7 +21,7 @@ import { columnsEffectivenessMarket } from "./efectividad-por-mercado-columns"
 import { econPerformanceByMarketColumns } from "./rendimiento-por-mercado-columns"
 
 function getDaysData(deals: any) {
-  if (deals.length > 0) {
+  if (deals?.length > 0) {
     // Remove duplicates
     return deals
       .filter(

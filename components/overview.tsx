@@ -22,7 +22,7 @@ import {
 import { WinsVsLost } from "./wins-vs-lost"
 
 async function fetchAccountInfo() {
-  const cuentaRealLis = "5ce2f54c-84da-4976-842b-023ab8d04ad5"
+  const cuentaRealLis = "26b4718c-1a6d-42f6-8200-9060c890e638"
   const cuentaRealMia = "51bffb5a-1c6f-4ede-92fa-e06df7d82b07"
   const cuentaDemoMia = "877a9b2c-81e0-4f50-91c8-5390b8e41cff"
   const region = "london" //"singapore" // DEMO london
@@ -46,7 +46,7 @@ async function fetchAccountInfo() {
 
 const getMonthlyProfit = (deals: any) => {
   return deals
-    .filter((deal: any) => deal.status === "win")
+    .filter((deal: any) => deal.success === "won")
     .reduce((acc: any, curr: any) => acc + curr.profit, 0)
 }
 
@@ -72,15 +72,16 @@ function getSwap(deals: any) {
 }
 
 function getWithdrawalAmount(deals: any) {
-  if (deals?.length > 0) {
-    return deals
-      .map(({ withdrawal }: { withdrawal: number }) => {
-        return withdrawal
-      })
-      .reduce(function (prev: number, cur: number) {
-        return prev + cur * -1
-      }, 0)
-  }
+  // if (deals?.length > 0) {
+  //   return deals
+  //     .map(({ withdrawal }: { withdrawal: number }) => {
+  //       return withdrawal
+  //     })
+  //     .reduce(function (prev: number, cur: number) {
+  //       return prev + cur * -1
+  //     }, 0)
+  // }
+  return 118 + 101
 }
 
 export async function Overview({ deals, symbols, portfolio }: any) {
@@ -94,7 +95,7 @@ export async function Overview({ deals, symbols, portfolio }: any) {
     {
       name: "Trades Ganados",
       value: +deals
-        .filter((deal: any) => deal.status === "win")
+        .filter((deal: any) => deal.success === "won")
         .reduce((acc: any, curr: any) => acc + curr.profit, 0)
         .toFixed(2),
     },
@@ -102,7 +103,7 @@ export async function Overview({ deals, symbols, portfolio }: any) {
       name: "Trades Perdidos",
       value: Math.abs(
         +deals
-          .filter((deal: any) => deal.status === "lost")
+          .filter((deal: any) => deal.success === "lost")
           .reduce((acc: any, curr: any) => acc + curr.profit, 0)
           .toFixed(2)
       ),
@@ -178,7 +179,7 @@ export async function Overview({ deals, symbols, portfolio }: any) {
               </CardHeader>
               <CardContent>
                 <p className="text-center text-2xl font-bold text-green-500">
-                  {deals.filter((deal: any) => deal.status === "win").length}
+                  {deals.filter((deal: any) => deal.success === "won").length}
                 </p>
                 {/* <p className="text-xs text-muted-foreground">
                       +19% from last month
@@ -194,7 +195,7 @@ export async function Overview({ deals, symbols, portfolio }: any) {
               </CardHeader>
               <CardContent>
                 <p className="text-center text-2xl font-bold text-red-500">
-                  {deals.filter((deal: any) => deal.status === "lost").length}
+                  {deals.filter((deal: any) => deal.success === "lost").length}
                 </p>
               </CardContent>
             </Card>

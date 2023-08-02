@@ -1,10 +1,11 @@
 "use client"
 
-import { useCallback, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
 
+import { useAppStore } from "@/lib/store"
 import {
   Form,
   FormControl,
@@ -34,6 +35,9 @@ const FormSchema = z.object({
 
 export function Transactions({ data, symbols }: any) {
   const [deals, setDeals] = useState(data)
+  const { fetchHistoricalTrades, trades } = useAppStore()
+  console.log("trades: ", trades)
+  // console.log("data: ", data)
   // console.log("deals: ", data)
   // console.log("symbols: ", symbols)
   const form = useForm<z.infer<typeof FormSchema>>({
@@ -85,6 +89,11 @@ export function Transactions({ data, symbols }: any) {
       setDeals(data.filter((deal: any) => deal.status === "lost"))
     }
   }
+
+  useEffect(() => {
+    fetchHistoricalTrades()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
 
   return (
     <div>

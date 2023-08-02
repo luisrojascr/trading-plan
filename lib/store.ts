@@ -2,17 +2,17 @@ import { create } from "zustand"
 import { createJSONStorage, persist } from "zustand/middleware"
 
 import {
-  AccountInfoSlice,
-  createAccountInfoSlice,
-} from "./slices/createAccountInfo"
+  HistoricalTradesSlice,
+  getHistoricalTradesSlice,
+} from "./slices/fetchHistoricalTrades"
 import { SelectPeriodSlice, selectPeriodSlice } from "./slices/selectPeriod"
 
-type StoreState = AccountInfoSlice & SelectPeriodSlice
+type StoreState = SelectPeriodSlice & HistoricalTradesSlice
 
 export const useAppStore = create<StoreState>()(
   persist(
     (...a) => ({
-      ...createAccountInfoSlice(...a),
+      ...getHistoricalTradesSlice(...a),
       ...selectPeriodSlice(...a),
     }),
     {
