@@ -36,12 +36,12 @@ async function makeGETRequest(
   return res.json()
 }
 
-async function fetchDeals(fromDate: string, toDate: string) {
-  const cuentaRealLis = "5ce2f54c-84da-4976-842b-023ab8d04ad5"
-  const cuentaRealMia = "51bffb5a-1c6f-4ede-92fa-e06df7d82b07"
-  const cuentaDemoMia = "877a9b2c-81e0-4f50-91c8-5390b8e41cff"
-  const region = "london" // DEMO london
-  const accountId = cuentaRealLis
+async function fetchDeals(
+  accountId: string,
+  region: string,
+  fromDate: string,
+  toDate: string
+) {
   const parsedFromDate = new Date(fromDate)
   const parsedtoDate = new Date(toDate)
   // Ultimos 2 dias
@@ -54,47 +54,51 @@ async function fetchDeals(fromDate: string, toDate: string) {
     ? new Date(parsedFromDate)
     : new Date(today.getFullYear(), today.getMonth(), 1)
   const endTime = toDate ? parsedtoDate : tomorrow // today
+  console.log("startTime: ", startTime)
+  console.log("endTime: ", endTime)
   let offset = 0
-  let data = []
-  let newReq: any = []
+  let data: any = []
+  // let newReq: any = []
 
-  try {
-    let response = makeGETRequest(startTime, endTime, accountId, offset)
-    while ((await response).length === 1000) {
-      offset += 1000
-      newReq = response
-      response = makeGETRequest(startTime, endTime, accountId, offset)
-      data = (await newReq).concat(await response)
+  let response = await makeGETRequest(startTime, endTime, accountId, offset)
+  do {
+    offset += 1000
+    const newReq = response
+    response = await makeGETRequest(startTime, endTime, accountId, offset)
+    data.push(...newReq)
+    if (response.length < 1000) {
+      data.push(...response)
     }
-    const operations = data
-      .filter(
-        (deal: any) =>
-          deal.entryType === "DEAL_ENTRY_OUT" ||
-          deal.type === "DEAL_TYPE_BALANCE"
-      )
-      .map((deal: any) => {
-        let dealType = ""
-        if (deal.type === "DEAL_TYPE_BUY") {
-          dealType = "Sell"
-        } else if (deal.type === "DEAL_TYPE_SELL") {
-          dealType = "Buy"
-        } else if (deal.type === "DEAL_TYPE_BALANCE") {
-          dealType = "Withdrawal"
-        }
-        return {
-          ...deal,
-          profit2: deal.profit,
-          status: deal.profit >= 0 ? "win" : "lost",
-          swap: deal.swap,
-          type: dealType,
-          withdrawal: deal.type === "DEAL_TYPE_BALANCE" ? deal.profit : 0,
-        }
-      })
+  } while (response.length === 1000)
 
-    return operations
-  } catch (err) {
-    console.error(err)
-  }
+  // data.push(response)
+
+  const operations = data
+    .filter(
+      (deal: any) =>
+        deal.entryType === "DEAL_ENTRY_OUT" || deal.type === "DEAL_TYPE_BALANCE"
+    )
+    .map((deal: any) => {
+      let dealType = ""
+      if (deal.type === "DEAL_TYPE_BUY") {
+        dealType = "Sell"
+      } else if (deal.type === "DEAL_TYPE_SELL") {
+        dealType = "Buy"
+      } else if (deal.type === "DEAL_TYPE_BALANCE") {
+        dealType = "Withdrawal"
+      }
+      return {
+        ...deal,
+        profit2: deal.profit,
+        status: deal.profit >= 0 ? "win" : "lost",
+        swap: deal.swap,
+        type: dealType,
+        withdrawal: deal.type === "DEAL_TYPE_BALANCE" ? deal.profit : 0,
+      }
+    })
+
+  // console.log("operations: ", operations)
+  return operations
 }
 
 function getSymbols(deals: any) {
@@ -144,6 +148,10 @@ export default async function DashboardPage({
 }: {
   searchParams?: { [key: string]: string | string[] | undefined }
 }) {
+  const cuentaRealLis = "26b4718c-1a6d-42f6-8200-9060c890e638"
+  const cuentaRealMia = "51bffb5a-1c6f-4ede-92fa-e06df7d82b07"
+  const cuentaDemoMia = "877a9b2c-81e0-4f50-91c8-5390b8e41cff"
+  const region = "london" // DEMO london
   const selectedFromDate = searchParams?.from ?? ""
   const selectedFrom: string = Array.isArray(selectedFromDate)
     ? selectedFromDate[0]
@@ -152,7 +160,12 @@ export default async function DashboardPage({
   const selectedTo: string = Array.isArray(selectedToDate)
     ? selectedToDate[0]
     : selectedToDate
-  const deals = await fetchDeals(selectedFrom, selectedTo)
+  const deals = await fetchDeals(
+    cuentaRealLis,
+    region,
+    selectedFrom,
+    selectedTo
+  )
   const symbols = await getSymbols(deals)
   const portfolio = await getPortfolio(deals)
 
@@ -175,16 +188,6 @@ export default async function DashboardPage({
         />
       </div>
       <div className="hidden flex-col md:flex">
-        {/* <div className="border-b">
-          <div className="flex h-16 items-center px-4">
-            <TeamSwitcher />
-            <MainNav className="mx-6" />
-            <div className="ml-auto flex items-center space-x-4">
-              <Search />
-              <UserNav />
-            </div>
-          </div>
-        </div> */}
         <div className="flex-1 space-y-4 p-8 pt-6">
           <div className="flex items-center justify-between space-y-2">
             <h2 className="text-3xl font-bold tracking-tight">

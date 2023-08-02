@@ -34,7 +34,8 @@ const FormSchema = z.object({
 
 export function Transactions({ data, symbols }: any) {
   const [deals, setDeals] = useState(data)
-  // console.log("deals: ", data)
+  console.log("deals length: ", data.length)
+  console.log("deals: ", data)
   // console.log("symbols: ", symbols)
   const form = useForm<z.infer<typeof FormSchema>>({
     resolver: zodResolver(FormSchema),

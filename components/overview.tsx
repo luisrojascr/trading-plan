@@ -22,7 +22,7 @@ import {
 import { WinsVsLost } from "./wins-vs-lost"
 
 async function fetchAccountInfo() {
-  const cuentaRealLis = "5ce2f54c-84da-4976-842b-023ab8d04ad5"
+  const cuentaRealLis = "26b4718c-1a6d-42f6-8200-9060c890e638"
   const cuentaRealMia = "51bffb5a-1c6f-4ede-92fa-e06df7d82b07"
   const cuentaDemoMia = "877a9b2c-81e0-4f50-91c8-5390b8e41cff"
   const region = "london" //"singapore" // DEMO london
@@ -72,15 +72,16 @@ function getSwap(deals: any) {
 }
 
 function getWithdrawalAmount(deals: any) {
-  if (deals?.length > 0) {
-    return deals
-      .map(({ withdrawal }: { withdrawal: number }) => {
-        return withdrawal
-      })
-      .reduce(function (prev: number, cur: number) {
-        return prev + cur * -1
-      }, 0)
-  }
+  // if (deals?.length > 0) {
+  //   return deals
+  //     .map(({ withdrawal }: { withdrawal: number }) => {
+  //       return withdrawal
+  //     })
+  //     .reduce(function (prev: number, cur: number) {
+  //       return prev + cur * -1
+  //     }, 0)
+  // }
+  return 118 + 101
 }
 
 export async function Overview({ deals, symbols, portfolio }: any) {
