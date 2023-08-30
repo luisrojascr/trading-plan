@@ -4,6 +4,7 @@ import { ColumnDef } from "@tanstack/react-table"
 import { format } from "date-fns"
 import { ArrowUpDown } from "lucide-react"
 
+import { numberFormat } from "../helpers/number_format"
 import { Badge } from "../ui/badge"
 import { Button } from "../ui/button"
 
@@ -21,7 +22,7 @@ export type Transaction = {
 
 export const columns: ColumnDef<Transaction>[] = [
   {
-    accessorKey: "time",
+    accessorKey: "closeTime",
     header: ({ column }) => {
       return (
         <div className="text-center">
@@ -36,9 +37,9 @@ export const columns: ColumnDef<Transaction>[] = [
       )
     },
     cell: ({ row }) => {
-      return row.getValue("time") ? (
+      return row.getValue("closeTime") ? (
         <span className="block text-center">
-          {format(new Date(row.getValue("time")), "dd/MM/yyyy '-' h:mm a")}
+          {format(new Date(row.getValue("closeTime")), "dd/MM/yyyy '-' h:mm a")}
         </span>
       ) : (
         ""
@@ -56,13 +57,16 @@ export const columns: ColumnDef<Transaction>[] = [
     accessorKey: "type",
     header: () => <div className="text-center">Tipo</div>,
     cell: ({ row }) => {
-      if (row.getValue("type") && row.getValue("type") === "Buy") {
+      if (row.getValue("type") && row.getValue("type") === "DEAL_TYPE_BUY") {
         return <span className="block text-center">Compra</span>
       }
-      if (row.getValue("type") && row.getValue("type") === "Sell") {
+      if (row.getValue("type") && row.getValue("type") === "DEAL_TYPE_SELL") {
         return <span className="block text-center">Venta</span>
       }
-      if (row.getValue("type") && row.getValue("type") === "Withdrawal") {
+      if (
+        row.getValue("type") &&
+        row.getValue("type") === "DEAL_TYPE_BALANCE"
+      ) {
         return <span className="block text-center">Retiro</span>
       }
 
@@ -73,7 +77,11 @@ export const columns: ColumnDef<Transaction>[] = [
     accessorKey: "volume",
     header: () => <div className="text-center">Lotaje</div>,
     cell: ({ row }) => {
-      return <span className="block text-center">{row.getValue("volume")}</span>
+      return (
+        <span className="block text-center">
+          {Math.round(row.getValue("volume") * 10) / 10}
+        </span>
+      )
     },
   },
   {
@@ -92,7 +100,7 @@ export const columns: ColumnDef<Transaction>[] = [
     cell: ({ row }) => {
       const profit: any = row.getValue("profit")
       return profit >= 0 ? (
-        <span className="block text-center">${profit}</span>
+        <span className="block text-center">{numberFormat(profit)}</span>
       ) : (
         ""
       )
@@ -114,18 +122,18 @@ export const columns: ColumnDef<Transaction>[] = [
     cell: ({ row }) => {
       const profit: any = row.getValue("profit2")
       return profit < 0 ? (
-        <span className="block text-center">${profit}</span>
+        <span className="block text-center">{numberFormat(profit)}</span>
       ) : (
         ""
       )
     },
   },
   {
-    accessorKey: "status",
+    accessorKey: "success",
     header: () => <div className="text-center">Estado</div>,
     cell: ({ row }) => {
-      switch (row.getValue("status")) {
-        case "win":
+      switch (row.getValue("success")) {
+        case "won":
           return (
             <span className="block text-center">
               <Badge variant="outline">Ganada</Badge>
