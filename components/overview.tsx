@@ -22,11 +22,11 @@ import {
 import { WinsVsLost } from "./wins-vs-lost"
 
 async function fetchAccountInfo() {
-  const cuentaRealLis = "26b4718c-1a6d-42f6-8200-9060c890e638"
+  const cuentaRealLis = "20841b9b-b8c8-4470-8d40-f9fc4570d381"
   const cuentaRealMia = "51bffb5a-1c6f-4ede-92fa-e06df7d82b07"
-  const cuentaDemoMia = "877a9b2c-81e0-4f50-91c8-5390b8e41cff"
-  const region = "london" //"singapore" // DEMO london
-  const accountId = cuentaRealLis
+  const cuentaDemoMia = "68e1a3a5-9048-48e4-8786-daafa012effa"
+  const region = "london" // "singapore" // DEMO london
+  const accountId = cuentaDemoMia
   const URL = `https://mt-client-api-v1.${region}.agiliumtrade.ai/users/current/accounts/${accountId}/account-information`
   try {
     const response = await fetch(URL, {

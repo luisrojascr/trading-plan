@@ -65,6 +65,8 @@ async function fetchDeals(
     offset += 1000
     const newReq = response
     response = await makeGETRequest(startTime, endTime, accountId, offset)
+    console.log("data: ", data)
+    console.log("newReq: ", newReq)
     data.push(...newReq)
     if (response.length < 1000) {
       data.push(...response)
@@ -148,9 +150,9 @@ export default async function DashboardPage({
 }: {
   searchParams?: { [key: string]: string | string[] | undefined }
 }) {
-  const cuentaRealLis = "26b4718c-1a6d-42f6-8200-9060c890e638"
+  const cuentaRealLis = "20841b9b-b8c8-4470-8d40-f9fc4570d381"
   const cuentaRealMia = "51bffb5a-1c6f-4ede-92fa-e06df7d82b07"
-  const cuentaDemoMia = "877a9b2c-81e0-4f50-91c8-5390b8e41cff"
+  const cuentaDemoMia = "68e1a3a5-9048-48e4-8786-daafa012effa"
   const region = "london" // DEMO london
   const selectedFromDate = searchParams?.from ?? ""
   const selectedFrom: string = Array.isArray(selectedFromDate)
@@ -161,7 +163,7 @@ export default async function DashboardPage({
     ? selectedToDate[0]
     : selectedToDate
   const deals = await fetchDeals(
-    cuentaRealLis,
+    cuentaDemoMia,
     region,
     selectedFrom,
     selectedTo
