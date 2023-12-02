@@ -22,10 +22,10 @@ export function MainNav({ className, items }: MainNavProps) {
       href: "/",
       name: "Inicio",
     },
-    {
-      href: "/risk-plan",
-      name: "Gestión de Riesgo",
-    },
+    // {
+    //   href: "/risk-plan",
+    //   name: "Gestión de Riesgo",
+    // },
   ]
 
   return (
